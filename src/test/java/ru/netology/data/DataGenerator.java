@@ -54,7 +54,7 @@ public class DataGenerator {
             String login = faker.name().firstName();
             String password = faker.internet().password();
             String invalidPassword = faker.internet().password();
-            registerUser(login, password, "blocked");
+            registerUser(login, password, "active");
             element("[name='login']").sendKeys(login);
             element("[name='password']").sendKeys(invalidPassword);
         }
@@ -63,7 +63,7 @@ public class DataGenerator {
             String login = faker.name().firstName();
             String password = faker.internet().password();
             String invalidLogin = faker.name().firstName();
-            registerUser(login, password, "blocked");
+            registerUser(login, password, "active");
             element("[name='login']").sendKeys(invalidLogin);
             element("[name='password']").sendKeys(password);
         }
