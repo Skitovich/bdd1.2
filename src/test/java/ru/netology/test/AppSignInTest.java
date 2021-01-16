@@ -1,8 +1,8 @@
 package ru.netology.test;
 
-
 import com.codeborne.selenide.Configuration;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.Condition.text;
@@ -13,58 +13,50 @@ import static ru.netology.data.DataGenerator.User.*;
 
 public class AppSignInTest {
 
-
     @BeforeAll
     static void setUp() {
         Configuration.browser = "firefox";
         Configuration.startMaximized = true;
+
+    }
+
+    @BeforeEach
+    void closeUp() {
+        open("http://localhost:9999/");
     }
 
 
     @Test
     void shouldLogin() {
-        open("http://localhost:9999/");
-        activeOrBlockedUserAuthData("active");
-        element("[name='login']").sendKeys(getValidLogin());
-        element("[name='password']").sendKeys(getValidPassword());
+        registerActiveUser();
         element(".button__text").click();
         element("h2").shouldHave(text("Личный кабинет")).shouldBe(visible);
     }
 
     @Test
     void shouldBlocked() {
-        open("http://localhost:9999/");
-        activeOrBlockedUserAuthData("blocked");
-        element("[name='login']").sendKeys(getValidLogin());
-        element("[name='password']").sendKeys(getValidPassword());
+        registerBlockedUser();
         element(".button__text").click();
         element(".notification__title").shouldBe(visible);
     }
+
     @Test
     void shouldErrorByLogin() {
-        open("http://localhost:9999/");
-        activeOrBlockedUserAuthData("active");
-        element("[name='login']").sendKeys(getInvalidLogin());
-        element("[name='password']").sendKeys(getValidPassword());
+        registerUserInvalidLogin();
         element(".button__text").click();
         element(".notification__content").shouldHave(text("Неверно указан логин или пароль"));
     }
+
     @Test
     void shouldErrorByPassword() {
-        open("http://localhost:9999/");
-        activeOrBlockedUserAuthData("active");
-        element("[name='login']").sendKeys(getValidLogin());
-        element("[name='password']").sendKeys(getInvalidPassword());
+        registerUserInvalidPassword();
         element(".button__text").click();
         element(".notification__content").shouldHave(text("Неверно указан логин или пароль"));
     }
 
     @Test
     void shouldErrorByPasswordAndLogin() {
-        open("http://localhost:9999/");
-        activeOrBlockedUserAuthData("active");
-        element("[name='login']").sendKeys(getInvalidLogin());
-        element("[name='password']").sendKeys(getInvalidPassword());
+        unregisteredUser();
         element(".button__text").click();
         element(".notification__content").shouldHave(text("Неверно указан логин или пароль"));
     }
