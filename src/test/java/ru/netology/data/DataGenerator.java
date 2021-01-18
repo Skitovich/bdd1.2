@@ -1,81 +1,58 @@
 package ru.netology.data;
 
 import com.github.javafaker.Faker;
-import com.google.gson.Gson;
 import io.restassured.http.ContentType;
-import lombok.Data;
 import lombok.Value;
 
 import java.util.Locale;
 
-import static com.codeborne.selenide.Selenide.element;
 import static io.restassured.RestAssured.given;
 
-@Data
 public class DataGenerator {
+    private static final Faker faker = new Faker(new Locale("en"));
 
     public DataGenerator() {
     }
 
-    @Value
-    public static class User {
-        private static Faker faker = new Faker(new Locale("ru"));
+    public static void registerUser(AuthInfo user) {
+        given()
+                .baseUri("http://localhost:9999")
+                .contentType(ContentType.JSON)
+                .body(user)
+                .when()
+                .post("/api/system/users")
+                .then()
+                .statusCode(200);
+    }
 
+    public static String getLogin() {
+        return faker.name().username();
+    }
 
-        public static void registerUser(String login, String password, String activeOrBlocked) {
-            given()
-                    .baseUri("http://localhost:9999")
-                    .contentType(ContentType.JSON)
-                    .body(new Gson().toJson(new AuthInfo(login, password, activeOrBlocked)))
-                    .when()
-                    .post("/api/system/users")
-                    .then()
-                    .statusCode(200);
-        }
+    public static String getPassword() {
+        return faker.internet().password();
+    }
 
+    public static AuthInfo getRegisteredUser(String status) {
+        AuthInfo user = new AuthInfo(getLogin(), getPassword(), status);
+        registerUser(user);
+        return user;
+    }
 
-        public static void registerActiveUser() {
-            String login = faker.name().firstName();
-            String password = faker.internet().password();
-            registerUser(login, password, "active");
-            element("[name='login']").sendKeys(login);
-            element("[name='password']").sendKeys(password);
-        }
+    public static AuthInfo getWrongPasswordUser(String status) {
+        String login = getLogin();
+        registerUser(new AuthInfo(login, getPassword(), status));
+        return new AuthInfo(login, getPassword(), status);
+    }
 
-        public static void registerBlockedUser() {
-            String login = faker.name().firstName();
-            String password = faker.internet().password();
-            registerUser(login, password, "blocked");
-            element("[name='login']").sendKeys(login);
-            element("[name='password']").sendKeys(password);
-        }
+    public static AuthInfo getWrongLoginUser (String status) {
+        String password = getPassword();
+        registerUser(new AuthInfo(getLogin(), password, status));
+        return new AuthInfo(getLogin(), password, status);
+    }
 
-        public static void registerUserInvalidPassword() {
-            String login = faker.name().firstName();
-            String password = faker.internet().password();
-            String invalidPassword = faker.internet().password();
-            registerUser(login, password, "active");
-            element("[name='login']").sendKeys(login);
-            element("[name='password']").sendKeys(invalidPassword);
-        }
-
-        public static void registerUserInvalidLogin() {
-            String login = faker.name().firstName();
-            String password = faker.internet().password();
-            String invalidLogin = faker.name().firstName();
-            registerUser(login, password, "active");
-            element("[name='login']").sendKeys(invalidLogin);
-            element("[name='password']").sendKeys(password);
-        }
-
-        public static void unregisteredUser() {
-            String login = faker.name().firstName();
-            String password = faker.internet().password();
-            element("[name='login']").sendKeys(login);
-            element("[name='password']").sendKeys(password);
-        }
-
-
+    public static AuthInfo getUnregisteredUser(String status) {
+        return new AuthInfo(getLogin(), getPassword(), status);
     }
 
     @Value
