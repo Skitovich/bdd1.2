@@ -14,7 +14,7 @@ public class AppSignInTest {
 
     @BeforeAll
    static void browser() {
-        Configuration.browser = "opera";
+        Configuration.browser = "firefox";
     }
 
     @BeforeEach
